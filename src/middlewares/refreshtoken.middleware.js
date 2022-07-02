@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import Token from '../utils/token'
+import Token from '../helpers/token'
 
 class RefreshTokenMiddleware {
   /**

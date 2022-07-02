@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import DAO from '../dao/dao'
-import Password from '../utils/password'
-import Token from '../utils/token'
+import Password from '../helpers/password'
+import Token from '../helpers/token'
 
 class AuthController {
   /**
