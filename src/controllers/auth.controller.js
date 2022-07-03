@@ -34,10 +34,7 @@ class AuthController {
    */
   static async login(req, res) {
     const data = req.body
-    const user = await DAO.models['User'].findOne({
-      attributes: ['id', 'fullname', 'password', 'role'],
-      where: { username: data.username },
-    })
+    const user = await DAO.models['User'].findOne({where: { username: data.username }})
 
     if (user && Password.check(data.password, user.password)) {
       const tokens = Token.generate({
@@ -49,7 +46,7 @@ class AuthController {
         DAO.models['PersonalToken'].create(tokens)
         return res.status(200).send({
           ...tokens,
-          user: user
+          user: DAO.models['User'].serialize(user)
         })
       } catch (error) {
         console.log(error)

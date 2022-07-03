@@ -1,16 +1,25 @@
 'use strict'
 
 const { Model } = require('sequelize')
+const Serializer = require('../helpers/serializer').default
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
+    static #scheme = {
+      include: ['@all'],
+      exclude: ['password', '@auto'],
+    }
+
     static associate(models) {
-      // define association here
+
+    }
+
+    static serializeMany(instances, options) {
+      return Serializer.serializeMany(instances, this, User.#scheme, options)
+    }
+
+    static serialize(instance, options) {
+      return (new Serializer(this, User.#scheme, options)).serialize(instance)
     }
   }
 
@@ -43,6 +52,6 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'User',
     tableName: 'users'
   })
-  
+
   return User
 }
