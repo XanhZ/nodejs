@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     static associate(models) {
-
+      this.hasMany(models['Motel'], { foreignKey: 'userId' })
     }
 
     static serializeMany(instances, options) {
@@ -33,6 +33,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    phonenumber: {
+      type: DataTypes.STRING(10),
+      allowNull: false
+    },
     username: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -43,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     role: {
-      type: DataTypes.ENUM('admin', 'user'),
+      type: DataTypes.ENUM('admin', 'user', 'landlord'),
       allowNull: false,
       defaultValue: 'user'
     },

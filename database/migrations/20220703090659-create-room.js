@@ -10,33 +10,48 @@ module.exports = {
    * @param {Sequelize} Sequelize 
    */
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('users', {
+    await queryInterface.createTable('rooms', {
       id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
         autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
       },
-      fullname: {
+      name: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
-      phonenumber: {
-        type: Sequelize.STRING(10),
-        allowNull: false
-      },
-      username: {
+      slug: {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true,
       },
-      password: {
+      type: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      role: {
-        type: Sequelize.ENUM('admin', 'user', 'landlord'),
+      area: {
+        type: Sequelize.FLOAT,
         allowNull: false,
-        defaultValue: 'user'
+      },
+      price: {
+        type: Sequelize.FLOAT,
+        allowNull: false,
+      },
+      deposit: {
+        type: Sequelize.FLOAT,
+      },
+      description: {
+        type: Sequelize.TEXT('medium'),
+        allowNull: false,
+      },
+      motelId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'motels',
+          key: 'id'
+        },
+        onDelete: 'cascade'
       },
       createdAt: {
         type: 'TIMESTAMP',
@@ -58,6 +73,6 @@ module.exports = {
    * @param {Sequelize} Sequelize 
    */
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('users')
+    await queryInterface.dropTable('rooms')
   }
 }

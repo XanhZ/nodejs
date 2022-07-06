@@ -1,5 +1,7 @@
 'use strict'
 
+const { QueryInterface, Sequelize } = require('sequelize')
+
 module.exports = {
   /**
    * Run migration up

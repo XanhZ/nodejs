@@ -10,33 +10,18 @@ module.exports = {
    * @param {Sequelize} Sequelize 
    */
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('users', {
+    await queryInterface.createTable('services', {
       id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
         autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
       },
-      fullname: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      phonenumber: {
-        type: Sequelize.STRING(10),
-        allowNull: false
-      },
-      username: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
-      },
-      password: {
+      name: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      role: {
-        type: Sequelize.ENUM('admin', 'user', 'landlord'),
-        allowNull: false,
-        defaultValue: 'user'
+      description: {
+        type: Sequelize.TEXT('tiny')
       },
       createdAt: {
         type: 'TIMESTAMP',
@@ -50,7 +35,7 @@ module.exports = {
       }
     })
   },
-
+  
   /**
    * Run migration down
    * 
@@ -58,6 +43,6 @@ module.exports = {
    * @param {Sequelize} Sequelize 
    */
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('users')
+    await queryInterface.dropTable('services')
   }
 }

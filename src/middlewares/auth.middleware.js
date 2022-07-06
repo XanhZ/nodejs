@@ -13,20 +13,24 @@ class AuthMiddleware {
     try {
       const authorizationHeader = req.headers['authorization']
       const token = authorizationHeader && authorizationHeader.split(' ')[1]
+
       if (!token) {
         return res.status(401).send({ message: 'Unauthorized' })
       }
-      Token.vertify(token)
+
+      req.user = Token.vertify(token)
       req.accessToken = token
+
       return next()
     } catch (error) {
-      if (error.name === Token.TOKEN_EXPIRED_ERROR) {
+      if (error.name === Token.ERRORS.TOKEN_EXPIRED) {
         return res.status(403).send({
           message: 'Token is expired',
           expiredAt: error.expiredAt
         })
       }
-      if (error.name === Token.JSON_WEB_TOKEN_ERROR) {
+      
+      if (error.name === Token.ERRORS.JSON_WEB_TOKEN) {
         return res.status(401).send({ message: 'Invalid Token' })
       }
     }

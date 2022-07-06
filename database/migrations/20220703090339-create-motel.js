@@ -10,33 +10,36 @@ module.exports = {
    * @param {Sequelize} Sequelize 
    */
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('users', {
+    await queryInterface.createTable('motels', {
       id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
         autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
       },
-      fullname: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      phonenumber: {
-        type: Sequelize.STRING(10),
-        allowNull: false
-      },
-      username: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
-      },
-      password: {
+      province: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      role: {
-        type: Sequelize.ENUM('admin', 'user', 'landlord'),
+      district: {
+        type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: 'user'
+      },
+      ward: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      street: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      userId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'users',
+          key: 'id'
+        },
+        onDelete: 'cascade'
       },
       createdAt: {
         type: 'TIMESTAMP',
@@ -58,6 +61,6 @@ module.exports = {
    * @param {Sequelize} Sequelize 
    */
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('users')
+    await queryInterface.dropTable('motels')
   }
 }

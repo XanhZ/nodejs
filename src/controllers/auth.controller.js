@@ -11,16 +11,17 @@ class AuthController {
   static async register(req, res) {
     try {
       const data = req.body
-      // Check if username is exist or not
+
       if (await AuthController.#isExist(data.username)) {
         return res.status(409).send({ message: 'Tên đăng nhập đã tồn tại' })
       }
-      // Create new user
+
       await DAO.models['User'].create({
         fullname: data.fullname,
         username: data.username,
         password: Password.hash(data.password),
       })
+      
       return res.status(201).send({ message: 'Register successfully' })
     } catch (error) {
       console.log(error)
@@ -42,6 +43,7 @@ class AuthController {
         fullname: user.fullname,
         role: user.role
       })
+
       try {
         DAO.models['PersonalToken'].create(tokens)
         return res.status(200).send({
@@ -68,6 +70,7 @@ class AuthController {
         where: { accessToken: req.accessToken },
         force: true
       })
+
       return res.sendStatus(204)
     } catch (error) {
       console.log(error)
@@ -85,15 +88,19 @@ class AuthController {
         where: { refreshToken: req.body.refreshToken }
       })
       if (!personalToken) return res.status(403).send({ message: 'Forbidden' })
+      
       const newTokens = Token.generate({
         id: req.user.id,
         fullname: req.user.fullname,
         role: req.user.role
       })
+
       personalToken.accessToken = newTokens.accessToken
       personalToken.refreshToken = newTokens.refreshToken
       personalToken.lastUsedAt = personalToken.updatedAt = Date.now()
+
       await personalToken.save()
+
       return res.status(201).send(newTokens)
     } catch (error) {
       console.log(error)

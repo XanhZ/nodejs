@@ -1,8 +1,14 @@
 import { sign, verify } from 'jsonwebtoken'
 
 class Token {
-  static TOKEN_EXPIRED_ERROR = 'TokenExpiredError'
-  static JSON_WEB_TOKEN_ERROR = 'JsonWebTokenError'
+  static #ERRORS = Object.freeze({
+    TOKEN_EXPIRED: 'TokenExpiredError',
+    JSON_WEB_TOKEN: 'JsonWebTokenError',
+  })
+
+  static get ERRORS() {
+    return Token.#ERRORS
+  }
   
   /**
    * Generate access token of payload

@@ -10,8 +10,12 @@ module.exports = {
     port: process.env.DB_PORT,
     dialect: process.env.DB_DIALECT,
     timezone: "+07:00",
-    dialectOptions: {
-      bigNumberStrings: true
+    dialectOptions: { bigNumberStrings: true },
+    pool: {
+      max: 10,
+      min: 0,
+      idle: 1000,
+      acquire: 5000
     }
   },
   test: {
@@ -22,8 +26,12 @@ module.exports = {
     port: process.env.DB_PORT,
     dialect: process.env.DB_DIALECT,
     timezone: "+07:00",
-    dialectOptions: {
-      bigNumberStrings: true
+    dialectOptions: { bigNumberStrings: true },
+    pool: {
+      max: 10,
+      min: 0,
+      idle: 1000,
+      acquire: 5000
     }
   },
   production: {
@@ -39,6 +47,12 @@ module.exports = {
       ssl: {
         ca: fs.readFileSync(__dirname + '/../cert/localhost.pem')
       }
+    },
+    pool: {
+      max: 10,
+      min: 0,
+      idle: 1000,
+      acquire: 5000
     }
   }
 }
