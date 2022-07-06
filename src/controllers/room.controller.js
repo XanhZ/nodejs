@@ -83,7 +83,40 @@ class RoomController {
    * @param {Response} res 
    */
   static async update(req, res) {
+    try {
+      const room = await DAO.models['Room'].findByPk(req.params.id, {
+        include: [{
+          model: DAO.models['RoomImage'],
+          as: 'images',
+        }, {
+          model: DAO.models['Motel'],
+          as: 'motel',
+        }, {
+          model: DAO.models['RoomService'],
+          as: 'services',
+          include: { model: DAO.models['Service'], as: 'service' }
+        }]
+      })
 
+      if (!room) {
+        return res.sendStatus(404)
+      }
+
+      room.name = req.body.name ?? room.name
+      room.slug = req.body.name ? Slug.slugify(req.body.name) : room.slug
+      room.type = req.body.type ?? room.type
+      room.area = req.body.area ?? room.area
+      room.price = req.body.price ?? room.price
+      room.deposit = req.body.deposit ?? room.deposit
+      room.description = req.body.description ?? room.description
+
+      await room.save()
+
+      return res.status(200).send(DAO.models['Room'].serialize(room))
+    } catch (error) {
+      console.log(error)
+      return res.sendStatus(500)
+    }
   }
 
   /**

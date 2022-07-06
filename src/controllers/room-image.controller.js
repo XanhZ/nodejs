@@ -39,7 +39,7 @@ class RoomImageController {
 
       if (!image) return res.sendStatus(404)
 
-      await Image.delete(image.publicId)
+      await Image.delete(req.params.publicId)
       await image.destroy({ force: true })
 
       return res.sendStatus(204)

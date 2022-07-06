@@ -19,18 +19,25 @@ const initApiRoute = (app) => {
   router.get('/rooms', RoomController.all)
   router.get('/rooms/:slug', RoomController.findBySlug)
 
+  /**
+   * ----------------AUTH ROUTES----------------
+   */
   router.post('/auth/register', LoggedMiddleware.handle, AuthController.register)
   router.post('/auth/login', LoggedMiddleware.handle, AuthController.login)
-
   router.post('/auth/refresh-token', RefreshTokenMiddleware.handle, AuthController.refreshToken)
-
   router.delete('/auth/logout', AuthMiddleware.handle, AuthController.logout)
 
+  /**
+   * ----------------SERVICE ROUTES----------------
+   */
   router.get('/services', [AuthMiddleware.handle, AdminMiddleware.handle], ServiceController.all)
   router.post('/services', [AuthMiddleware.handle, AdminMiddleware.handle], ServiceController.create)
   router.put('/services/:id', [AuthMiddleware.handle, AdminMiddleware.handle], ServiceController.update)
   router.delete('/services/:id', [AuthMiddleware.handle, AdminMiddleware.handle], ServiceController.delete)
 
+  /**
+   * ----------------MOTEL ROUTES----------------
+   */
   router.get(
     '/user/motels',
     [AuthMiddleware.handle, LandlordMiddleware.handle],
@@ -57,6 +64,9 @@ const initApiRoute = (app) => {
     MotelController.delete
   )
 
+  /**
+   * ----------------ROOM ROUTES----------------
+   */
   router.get(
     '/user/rooms', 
     [AuthMiddleware.handle, LandlordMiddleware.handle], 
@@ -88,12 +98,38 @@ const initApiRoute = (app) => {
     RoomController.delete
   )
 
-  // router.post('/user/rooms/:roomId/images', AuthMiddleware.handle, RoomImageController.create)
-  // router.delete('/user/rooms/:roomId/images/:publicId', AuthMiddleware, RoomImageController.delete)
+  /**
+   * ----------------ROOM IMAGE ROUTES----------------
+   */
+  router.post(
+    '/user/rooms/:roomId/images', 
+    [AuthMiddleware.handle, LandlordMiddleware.handle], 
+    RoomImageController.create
+  )
+  router.delete(
+    '/user/rooms/:roomId/images/:publicId', 
+    [AuthMiddleware.handle, LandlordMiddleware.handle], 
+    RoomImageController.delete
+  )
 
-  // router.post('/user/rooms/:roomId/services', AuthMiddleware.handle, RoomServiceController.create)
-  // router.put('/user/rooms/:roomId/services/:serviceId', AuthMiddleware.handle, RoomServiceController.update)
-  // router.delete('/user/rooms/:roomId/services/:serviceId', AuthMiddleware.handle, RoomServiceController.delete)
+  /**
+   * ----------------ROOM SERVICE ROUTES----------------
+   */
+  router.post(
+    '/user/rooms/:roomId/services', 
+    [AuthMiddleware.handle, LandlordMiddleware.handle], 
+    RoomServiceController.create
+  )
+  router.put(
+    '/user/rooms/:roomId/services/:serviceId', 
+    [AuthMiddleware.handle, LandlordMiddleware.handle],  
+    RoomServiceController.update
+  )
+  router.delete(
+    '/user/rooms/:roomId/services/:serviceId', 
+    [AuthMiddleware.handle, LandlordMiddleware.handle], 
+    RoomServiceController.delete
+  )
 
   app.use('/api/v1', router)
 }
