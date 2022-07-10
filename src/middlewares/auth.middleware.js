@@ -1,5 +1,5 @@
 import Token from '../helpers/token'
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 
 class AuthMiddleware {
   /**
@@ -7,7 +7,7 @@ class AuthMiddleware {
    * 
    * @param {Request} req Request from client
    * @param {Response} res Response from server
-   * @param {callback} next Action call if request is valid
+   * @param {NextFunction} next Action call if request is valid
    */
   static handle(req, res, next) {
     try {

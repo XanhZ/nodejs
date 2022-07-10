@@ -7,7 +7,6 @@ import morgan from 'morgan'
 
 import DAO from './dao/dao'
 import initApiRoute from './routes/api'
-import initWebRoute from './routes/web'
 
 dotenv.config()
 
@@ -29,7 +28,6 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-initWebRoute(app)
 initApiRoute(app)
 
 DAO.connect()

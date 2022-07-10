@@ -23,9 +23,9 @@ class Image {
   /**
    * Upload multiple images
    * 
-   * @param {UploadedFile[]} images Images need to be stored
+   * @param {...UploadedFile} images Images need to be stored
    */
-  static async uploadMulti(images) {
+  static async uploadMulti(...images) {
     try {
       return await Promise.all(images.map(image => this.upload(image)))
     } catch (error) {
@@ -36,7 +36,7 @@ class Image {
   /**
    * Delete multiple images
    * 
-   * @param  {...any} imageIds Id of images need to be deleted
+   * @param  {...string} imageIds Id of images need to be deleted
    */
   static delete(...imageIds) {
     return this.#imagekit.bulkDeleteFiles(imageIds)

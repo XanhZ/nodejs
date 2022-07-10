@@ -32,46 +32,28 @@ class RoomController {
    */
   static async create(req, res) {
     try {
-      const uploadImages = await Image.uploadMulti(req.files.images)
+      const motelOfRoom = await DAO.models['Motel'].findByPk(req.params.motelId)
 
-      const [createdRoom, images] = await DAO.sequelize.transaction(async (trans) => {
+      if (!motelOfRoom) {
+        return res.sendStatus(400)
+      }
 
-        const room = await DAO.models['Room'].create({
-          name: req.body.name,
-          slug: Slug.slugify(req.body.name),
-          type: req.body.type,
-          area: req.body.area,
-          price: req.body.price,
-          deposit: req.body.deposit,
-          description: req.body.description,
-          motelId: req.params.motelId
-        }, { transaction: trans })
+      if (req.user.id !== motelOfRoom.userId) {
+        return res.sendStatus(403)
+      }
 
-        const services = await Promise.all(JSON.parse(req.body.services).map(
-          service => DAO.models['RoomService'].create({
-            quantity: service.quantity,
-            price: service.price,
-            unity: service.unity,
-            serviceId: service.serviceId,
-            roomId: room.id
-          }, { transaction: trans })
-        ))
-
-        const images = await Promise.all(uploadImages.map(
-          image => DAO.models['RoomImage'].create({
-            url: image.url,
-            publicId: image.fileId,
-            roomId: room.id
-          }, { transaction: trans })
-        ))
-
-        return [room, images]
+      const room = await DAO.models['Room'].create({
+        name: req.body.name,
+        slug: Slug.slugify(req.body.name),
+        type: req.body.type,
+        area: req.body.area,
+        price: req.body.price,
+        deposit: req.body.deposit,
+        description: req.body.description,
+        motelId: req.params.motelId
       })
 
-      return res.status(201).send({
-        ...DAO.models['Room'].serialize(createdRoom),
-        images: DAO.models['RoomImage'].serializeMany(images)
-      })
+      return res.status(201).send(DAO.models['Room'].serialize(room))
     } catch (error) {
       console.log(error)
       return res.sendStatus(500)
@@ -84,22 +66,14 @@ class RoomController {
    */
   static async update(req, res) {
     try {
-      const room = await DAO.models['Room'].findByPk(req.params.id, {
-        include: [{
-          model: DAO.models['RoomImage'],
-          as: 'images',
-        }, {
-          model: DAO.models['Motel'],
-          as: 'motel',
-        }, {
-          model: DAO.models['RoomService'],
-          as: 'services',
-          include: { model: DAO.models['Service'], as: 'service' }
-        }]
-      })
-
+      const room = await DAO.models['Room'].findByPk(req.params.id)
       if (!room) {
         return res.sendStatus(404)
+      }
+
+      const motelOfRoom = await room.getMotel()
+      if (req.user.id !== motelOfRoom.userId) {
+        return res.sendStatus(403)
       }
 
       room.name = req.body.name ?? room.name
@@ -126,14 +100,21 @@ class RoomController {
   static async delete(req, res) {
     try {
       const room = await DAO.models['Room'].findByPk(req.params.id)
+      if (!room) {
+        return res.sendStatus(404)
+      }
 
-      if (!room) return res.sendStatus(404)
+      const motelOfRoom = await room.getMotel()
+      if (req.user.id !== motelOfRoom.userId) {
+        return res.sendStatus(403)
+      }
 
       const images = await DAO.models['RoomImage'].findAll({
         where: { roomId: req.params.id }
       })
-
-      await Image.delete(...images.map(image => image.publicId))
+      if (images.length > 0) {
+        await Image.delete(...images.map(image => image.publicId))
+      }
       await room.destroy({ force: true })
 
       return res.sendStatus(204)
@@ -163,7 +144,15 @@ class RoomController {
         }]
       })
 
-      return !room ? res.sendStatus(404) : res.status(200).send(DAO.models['Room'].serialize(room))
+      if (!room) {
+        return res.sendStatus(404)
+      }
+
+      if (room.motel.userId !== req.user.id) {
+        return res.sendStatus(403)
+      }
+
+      return res.status(200).send(DAO.models['Room'].serialize(room))
     } catch (error) {
       console.log(error)
       return res.sendStatus(500)
@@ -177,7 +166,7 @@ class RoomController {
   static async findBySlug(req, res) {
     try {
       const room = await DAO.models['Room'].findOne({
-        where: { slug: req.body.slug },
+        where: { slug: req.params.slug },
         include: [{
           model: DAO.models['RoomImage'],
           as: 'images'
@@ -204,6 +193,13 @@ class RoomController {
    * @param {Response} res 
    */
   static async findByMotel(req, res) {
+    const motel = await DAO.models['Motel'].findByPk(req.params.motelId)
+    if (!motel) {
+      return res.sendStatus(400)
+    }
+    if (motel.userId !== req.user.id) {
+      return res.sendStatus(403)
+    }
     const rooms = await DAO.models['Room'].findAll({
       where: { motelId: req.params.motelId },
       include: [{

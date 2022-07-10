@@ -46,10 +46,7 @@ class AuthController {
 
       try {
         DAO.models['PersonalToken'].create(tokens)
-        return res.status(200).send({
-          ...tokens,
-          user: DAO.models['User'].serialize(user)
-        })
+        return res.status(200).send(tokens)
       } catch (error) {
         console.log(error)
         return res.sendStatus(500)

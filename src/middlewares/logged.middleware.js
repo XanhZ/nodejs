@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 
 class LoggedMiddleware {
   /**
@@ -6,7 +6,7 @@ class LoggedMiddleware {
    * 
    * @param {Request} req Request from client
    * @param {Response} res Response from server
-   * @param {callback} next Action call if request is valid
+   * @param {NextFunction} next Action call if request is valid
    */
   static handle(req, res, next) {
     return !req.headers['authorization'] ? next() : res.status(403).send({ message: 'Forbidden' })
