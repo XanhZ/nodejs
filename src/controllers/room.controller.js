@@ -9,21 +9,39 @@ class RoomController {
    * @param {Response} res 
    */
   static async all(req, res) {
-    const rooms = await DAO.models['Room'].findAll({
-      include: [{
-        model: DAO.models['RoomImage'],
-        as: 'images'
-      }, {
-        model: DAO.models['Motel'],
-        as: 'motel',
-        include: { model: DAO.models['User'], as: 'landlord' }
-      }, {
-        model: DAO.models['RoomService'],
-        as: 'services',
-        include: { model: DAO.models['Service'], as: 'service' }
-      }]
-    })
-    res.status(200).send(DAO.models['Room'].serializeMany(rooms))
+    try {
+      const sql = RoomController.#proptertiesToSql(req)
+      const rooms = await DAO.sequelize.query(sql, {
+        nest: true,
+        type: DAO.sequelize.QueryTypes.SELECT
+      })
+      for (const room of rooms) {
+        const [images, services] = await Promise.all([
+          DAO.sequelize.query(
+            `SELECT url, publicId FROM room_images WHERE room_images.roomId = ${room.id}`,
+            {
+              nest: true,
+              type: DAO.sequelize.QueryTypes.SELECT
+            }
+          ),
+          DAO.sequelize.query(
+            'SELECT quantity, unity, price, id as `service.id`, name as `service.name` ' + 
+            'FROM room_services, services ' + 
+            `WHERE room_services.roomId = ${room.id} AND room_services.serviceId = services.id`,
+            {
+              nest: true,
+              type: DAO.sequelize.QueryTypes.SELECT
+            }
+          )
+        ])
+        room.images = images
+        room.services = services
+      }
+      return res.status(200).send(rooms)
+    } catch (error) {
+      console.log(error)
+      return res.sendStatus(500)
+    }
   }
 
   /**
@@ -244,6 +262,68 @@ class RoomController {
       }]
     })
     res.status(200).send(DAO.models['Room'].serializeMany(rooms))
+  }
+
+  static #proptertiesToSql(req) {
+    const properties = ['rooms.motelId = motels.id', 'motels.userId = users.id']
+    let orderBy = undefined
+    if (req.query.order_by) {
+      const arr = req.query.order_by.split('_')
+      if (arr[0] === 'price') {
+        orderBy = `ORDER BY price ${arr[1]}`
+      } else if (arr[0] === 'time') {
+        orderBy = `ORDER BY updatedAt`
+      }
+    }
+
+    if (req.query.district !== undefined) {
+      properties.push(`district = '${req.query.district}'`)
+    }
+
+    if (req.query.ward !== undefined) {
+      properties.push(`ward = '${req.query.ward}'`)
+    }
+
+    if (req.query.type !== undefined) {
+      properties.push(`type = '${req.query.type}'`)
+    }
+
+    if (req.query.area_from !== undefined) {
+      properties.push(`area >= ${req.query.area_from}`)
+    }
+
+    if (req.query.area_to !== undefined) {
+      properties.push(`area <= ${req.query.area_to}`)
+    }
+
+    if (req.query.price_from !== undefined) {
+      properties.push(`price >= ${req.query.price_from}`)
+    }
+    
+    if (req.query.price_to !== undefined) {
+      properties.push(`price <= ${req.query.price_to}`)
+    }
+
+    return  'SELECT ' + 
+              'rooms.id, ' +
+              'rooms.name, ' +
+              'rooms.slug, ' +
+              'rooms.type, ' +
+              'rooms.area, ' +
+              'rooms.price, ' +
+              'rooms.deposit, ' +
+              'rooms.description, ' +
+              'rooms.createdAt, ' +
+              'rooms.updatedAt, ' +
+              'province as `motel.province`, ' +
+              'district as `motel.district`, ' +
+              'ward as `motel.ward`, ' +
+              'street as `motel.street`, ' + 
+              'fullname as `motel.landlord.fullname`, ' +
+              'phonenumber as `motel.landlord.phonenumber` ' + 
+            'FROM rooms, motels, users '+
+            `WHERE ${properties.join(' AND ')} ` +
+            `${orderBy ? orderBy : ''}`
   }
 }
 

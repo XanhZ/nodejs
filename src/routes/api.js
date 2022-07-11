@@ -20,11 +20,12 @@ import RoomValidator from '../validators/room.validator'
 import RoomServiceValidator from '../validators/room-service.validator'
 import ServiceValidator from '../validators/service.validator'
 import RoomImageValidator from '../validators/room-image.validator'
+import SearchRoomValidator from '../validators/search-room.validator'
 
 const router = express.Router()
 
 const initApiRoute = (app) => {
-  router.get('/rooms', RoomController.all)
+  router.get('/rooms', [SearchRoomValidator.validate(), SearchRoomValidator.getErrors], RoomController.all)
   router.get('/rooms/:slug', RoomController.findBySlug)
 
   /**

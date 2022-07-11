@@ -29,8 +29,6 @@ class ServiceValidator extends Validator {
         .notEmpty().withMessage('Mô tả không hợp lệ'),
     ]
   }
-
-
 }
 
 export default ServiceValidator
