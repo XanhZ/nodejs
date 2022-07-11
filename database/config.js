@@ -14,8 +14,8 @@ module.exports = {
     pool: {
       max: 10,
       min: 0,
-      idle: 1000,
-      acquire: 5000
+      idle: 10000,
+      acquire: 60000
     }
   },
   test: {
@@ -30,8 +30,8 @@ module.exports = {
     pool: {
       max: 10,
       min: 0,
-      idle: 1000,
-      acquire: 5000
+      idle: 10000,
+      acquire: 60000
     }
   },
   production: {
@@ -51,8 +51,8 @@ module.exports = {
     pool: {
       max: 10,
       min: 0,
-      idle: 1000,
-      acquire: 5000
+      idle: 10000,
+      acquire: 60000
     }
   }
 }

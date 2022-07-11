@@ -18,8 +18,10 @@ class AuthController {
 
       await DAO.models['User'].create({
         fullname: data.fullname,
+        phonenumber: data.phonenumber,
         username: data.username,
         password: Password.hash(data.password),
+        role: data.role
       })
       
       return res.status(201).send({ message: 'Register successfully' })

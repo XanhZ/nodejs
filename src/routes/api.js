@@ -48,7 +48,6 @@ const initApiRoute = (app) => {
    */
   router.get(
     '/services', 
-    [AuthMiddleware.handle, AdminMiddleware.handle], 
     ServiceController.all
   )
   router.post(

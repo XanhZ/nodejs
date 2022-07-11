@@ -11,7 +11,7 @@ import initApiRoute from './routes/api'
 dotenv.config()
 
 const app = express()
-const port = process.env.APP_PORT || 3000
+const port = process.env.PORT || 3000
 
 app.use(compression({
   level: 6,

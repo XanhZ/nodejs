@@ -11,12 +11,12 @@ class DAO {
   /**
    * Establish new connection to database and create DAO for each model
    */
-  static connect() {
+  static async connect() {
     if (this.sequelize === undefined || this.sequelize === null) {
       try {
         this.sequelize = new Sequelize(config.database, config.username, config.password, config)
+        await this.testConnection()
         this.#initalizeModels()
-        console.log('-------Connection to database has been established successfully-------')
       } catch (error) {
         console.log(error)
       }
@@ -30,9 +30,9 @@ class DAO {
    */
   static async testConnection() {
     try {
-      console.log('-------Authenticating connection-------')
+      console.log('-------Authenticating database connection-------')
       await this.sequelize.authenticate()
-      console.log('-------Connect successfully-------')
+      console.log('-------Connection to database has been established successfully-------')
     } catch (error) {
       console.error('Unable to connect to the database:', error)
     }
